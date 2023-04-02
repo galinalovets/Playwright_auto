@@ -1,10 +1,23 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
-test('actions', async ({ page }) => {
+test.only('actions', async ({ page }) => {
   await page.goto('https://demoqa.com/automation-practice-form');
-   
-  await page.locator('xpath=//input[@id= "firstName"]').fill('Peter');
+  
+  const fieldFirstName = page.locator('xpath=//input[@id= "firstName"]');
+  const fieldLastName = page.getByPlaceholder('Last Name');
+  const radioGender  = page.getByLabel("Male");
+
+  await fieldFirstName.fill('Peter');
+  await expect(fieldFirstName).toHaveValue('Peter');
+
+  await fieldLastName.fill('Parker');
+  await expect(fieldLastName).toHaveValue('Parker');
+
+
+  //await radioGender.check();
+  //await expect(radioGender).toBeChecked();
+  //await page.getByLabel("Sports").check();
   
 });
 
