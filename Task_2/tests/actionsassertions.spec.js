@@ -6,7 +6,13 @@ test.only('actions', async ({ page }) => {
   
   const fieldFirstName = page.locator('xpath=//input[@id= "firstName"]');
   const fieldLastName = page.getByPlaceholder('Last Name');
-  const radioGender  = page.getByLabel("Male");
+  const fieldEmail = page.getByPlaceholder('name@example.com');
+  const radioGender  = page.getByLabel('Male', {exact : true});
+  const fieldPhoneNumber = page.getByPlaceholder('Mobile Number');
+  const fieldDate = page.locator('input#dateOfBirthInput');
+  const fieldSubjects = page.locator('input#subjectsInput');
+  const checkboxHobbySports = page.getByLabel('Sports');
+
 
   await fieldFirstName.fill('Peter');
   await expect(fieldFirstName).toHaveValue('Peter');
@@ -14,11 +20,25 @@ test.only('actions', async ({ page }) => {
   await fieldLastName.fill('Parker');
   await expect(fieldLastName).toHaveValue('Parker');
 
-
-  //await radioGender.check();
-  //await expect(radioGender).toBeChecked();
-  //await page.getByLabel("Sports").check();
+  await fieldEmail.fill('avengers@assemble.com');
+  await expect(fieldEmail).toHaveValue('avengers@assemble.com');
   
+  await radioGender.check({force : true});
+  await expect(radioGender).toBeChecked();
+ 
+  await fieldPhoneNumber.fill('5555555555');
+  await expect(fieldPhoneNumber).toHaveValue('5555555555');
+
+  await fieldDate.fill('04/03/2023');
+  await fieldDate.press('Enter');
+  await expect(fieldDate).toHaveValue('03 Apr 2023');
+
+  await fieldSubjects.fill('Math');
+  await fieldSubjects.press('Enter');
+  await expect(fieldSubjects).toBeVisible();
+
+  await checkboxHobbySports.check({force : true});
+  await expect(checkboxHobbySports).toBeChecked();
 });
 
 test('forum locators', async ({ page }) => {
