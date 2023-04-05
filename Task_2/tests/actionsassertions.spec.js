@@ -1,7 +1,7 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
-test.only('actions', async ({ page }) => {
+test('actions', async ({ page }) => {
   await page.goto('https://demoqa.com/automation-practice-form');
   
   const fieldFirstName = page.locator('xpath=//input[@id= "firstName"]');
@@ -12,6 +12,11 @@ test.only('actions', async ({ page }) => {
   const fieldDate = page.locator('input#dateOfBirthInput');
   const fieldSubjects = page.locator('input#subjectsInput');
   const checkboxHobbySports = page.getByLabel('Sports');
+  const uploadPicture = page.locator('input#uploadPicture');
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  const selectState = page.locator('input#react-select-3-input');
+  const buttonSubmit = page.getByRole('button', {name : 'Submit'});
+  const modalDialog = page.locator('div.modal-content');
 
 
   await fieldFirstName.fill('Peter');
@@ -39,10 +44,29 @@ test.only('actions', async ({ page }) => {
 
   await checkboxHobbySports.check({force : true});
   await expect(checkboxHobbySports).toBeChecked();
+
+  await uploadPicture.click();
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles('newtext.txt');
+  await expect(uploadPicture).toBeVisible();
+
+  await selectState.click({force : true});
+  await selectState.press('Enter');
+  await expect(selectState).toBeVisible();
+
+  await buttonSubmit.hover();
+  await buttonSubmit.click();
+  await expect(modalDialog).toBeVisible();
 });
 
-test('forum locators', async ({ page }) => {
-  await page.goto('https://demoqa.com/automation-practice-form');
+test('select', async ({ page }) => {
+  await page.goto('https://demoqa.com/select-menu');
+
+  const selectedItem = page.locator('select#oldSelectMenu');
+
+  await selectedItem.selectOption('Red');
+  await expect(selectedItem).toHaveValue('red');
+
 
   
 })
