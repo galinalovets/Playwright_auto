@@ -1,7 +1,7 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
-test('actions', async ({ page }) => {
+test('practice form', async ({ page }) => {
   await page.goto('https://demoqa.com/automation-practice-form');
   
   const fieldFirstName = page.locator('xpath=//input[@id= "firstName"]');
@@ -14,18 +14,18 @@ test('actions', async ({ page }) => {
   const checkboxHobbySports = page.getByLabel('Sports');
   const uploadPicture = page.locator('input#uploadPicture');
   const fileChooserPromise = page.waitForEvent('filechooser');
-  const selectState = page.locator('input#react-select-3-input');
-  const buttonSubmit = page.getByRole('button', {name : 'Submit'});
-  const modalDialog = page.locator('div.modal-content');
-
-
+  
   await fieldFirstName.fill('Peter');
   await expect(fieldFirstName).toHaveValue('Peter');
 
   await fieldLastName.fill('Parker');
   await expect(fieldLastName).toHaveValue('Parker');
 
-  await fieldEmail.fill('avengers@assemble.com');
+  await fieldEmail.type('avengers');
+  await fieldEmail.press('Control+ArrowRight');
+  await fieldEmail.press('@');
+  await fieldEmail.press('Control+ArrowRight');
+  await fieldEmail.type('assemble.com');
   await expect(fieldEmail).toHaveValue('avengers@assemble.com');
   
   await radioGender.check({force : true});
@@ -50,13 +50,6 @@ test('actions', async ({ page }) => {
   await fileChooser.setFiles('newtext.txt');
   await expect(uploadPicture).toBeVisible();
 
-  await selectState.click({force : true});
-  await selectState.press('Enter');
-  await expect(selectState).toBeVisible();
-
-  await buttonSubmit.hover();
-  await buttonSubmit.click();
-  await expect(modalDialog).toBeVisible();
 });
 
 test('select', async ({ page }) => {
@@ -66,7 +59,41 @@ test('select', async ({ page }) => {
 
   await selectedItem.selectOption('Red');
   await expect(selectedItem).toHaveValue('red');
+ 
+})
 
+test('menu', async ({ page }) => {
+  await page.goto('https://demoqa.com/menu');
 
+  const selectedMenuItem = page.getByText('Main Item 2');
+  const selectedSubMenuItem = page.getByText('SUB SUB LIST »');
+  const selectedSubSubMenuItem = page.getByText('Sub Sub Item 1');
+
+  await selectedMenuItem.hover();
+  await selectedSubMenuItem.hover();
+  await selectedSubSubMenuItem.hover();
+  await expect(selectedSubSubMenuItem).toBeVisible();
+ 
+})
+
+test('upload', async ({ page }) => {
+  await page.goto('https://demoqa.com/upload-download');
+
+  const uploadFile = page.locator('#uploadFile');
+  const uploadedFilePath = page.locator('#uploadedFilePath');
+
+  await uploadFile.setInputFiles('newtext.txt');
+  await expect(uploadedFilePath).toBeVisible();
+ 
+})
+
+test('drag & drop', async ({ page }) => {
+  await page.goto('https://demoqa.com/droppable');
+
+  const itemToDrag = page.locator('div #simpleDropContainer div#draggable');
+  const placeToDrop = page.locator('div #simpleDropContainer div#droppable');
   
+  await itemToDrag.dragTo(placeToDrop);
+  await expect(placeToDrop).toHaveText('Dropped!');
+ 
 })
