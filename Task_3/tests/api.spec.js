@@ -1,49 +1,73 @@
 // @ts-check
 import { test, expect, chromium } from '@playwright/test';
-
-test('login', async () => {
-  const browser = await chromium.launch();  
+import userData from '../resourses/user.json';
+test('API test', async ({ request }) => {
+  const baseURL = 'https://demoqa.com';
+  const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
-  await page.goto('https://demoqa.com/login');
-  await page.getByPlaceholder('UserName').click();
-  await page.getByPlaceholder('UserName').fill('HalinaTest');
-  await page.getByPlaceholder('UserName').press('Tab');
-  await page.getByPlaceholder('Password').click();
-  await page.getByPlaceholder('Password').fill('Testtest1$');
+  const userLogin = userData['username'];
+  const userPassword = userData['password'];
+
+  await page.goto(`${baseURL}/login`);
+  await page.getByPlaceholder('UserName').fill(userLogin);
+  await page.getByPlaceholder('Password').fill(userPassword);
   await page.getByRole('button', { name: 'Login' }).click();
-  await page.goto('https://demoqa.com/profile');
+  await page.waitForURL(`${baseURL}/profile`);
   await expect(page).toHaveURL(/profile/);
-  await context.storageState({ path: 'state.json'});
- })
+  
+  const cookiesAll = await context.cookies();
+  const userID = cookiesAll.find((c) => c.name == 'userID');
+  await expect(userID).toBeTruthy();
+  const userName = cookiesAll.find((c) => c.name == 'userName');
+  await expect(userName).toBeTruthy();
+  const expires = cookiesAll.find((c) => c.name == 'expires');
+  await expect(expires).toBeTruthy();
+  const token = cookiesAll.find((c) => c.name == 'token');
+  await expect(token).toBeTruthy();
 
- test('route block images', async () => {
-  const browser = await chromium.launch();
-  const context = await browser.newContext({ storageState : 'state.json'});
-  const page = await context.newPage();
-  await context.storageState({ path: 'state.json'});
-  await page.route('**/*.{png,jpg,jpeg}', route => route.abort());
-  await page.goto('https://demoqa.com/books');
-  const image = page.locator('[scr="**/*.{png,jpg,jpeg}"]');
-  await expect(image).not.toBeVisible();
- })
+  await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
+  await page.goto(`${baseURL}/books`);
+  await page.screenshot({ path: 'resourses/noimages.jpeg' });
 
- test.only('book store requests', async () => {
-  const browser = await chromium.launch();  
-  const context = await browser.newContext({ storageState : 'state.json'});
-  const page = await context.newPage();
-  const responsePromise = page.waitForResponse('https://demoqa.com/BookStore/v1/Books');
-  await page.goto('https://demoqa.com/profile');
-  await context.storageState({ path: 'state.json'});
+  const responsePromise = page.waitForResponse(`${baseURL}/BookStore/v1/Books`);
+  await page.goto(`${baseURL}/profile`);
   await page.getByRole('list').getByText('Book Store', { exact: true }).click();
   await expect(page).toHaveURL(/books/);
   await expect(page.getByRole('button', { name: 'Next' })).toBeVisible();
-  await page.screenshot({ path: 'pagescreen.jpeg', fullPage: true});
-  const response = await responsePromise;
-  response.ok();
-  console.log(response.status());
-  console.log(await response.json());
-  //await page.route()
+  await page.screenshot({ path: 'resourses/pagescreen.jpeg', fullPage: true });
+  const responseBooks = await responsePromise;
+  console.log(responseBooks.status());
+  const responseBooksBody = await responseBooks.json();
+  await expect(responseBooksBody.books).toHaveLength(8);
 
+  await page.route(`${baseURL}/BookStore/v1/Book?ISBN=*`, async (route) => {
+    const response = await route.fetch();
+    let body = await response.text();
+    let bookBody = JSON.parse(body);
+    body = body.replace(bookBody.pages, '852');
+    route.fulfill({
+      response,
+      body,
+      headers: { ...response.headers() },
+    });
+  });
+  await page.getByText('Speaking JavaScript').click();
+  await expect(
+    page.getByRole('button', { name: 'Back To Book Store' })
+  ).toBeVisible();
+  await page.screenshot({ path: 'resourses/bookPages.jpeg' });
 
- })
+  const response = await request.get(
+    `${baseURL}/Account/v1/User/${userID?.value}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
+      },
+    }
+  );
+  expect(response.status()).toBe(200);
+  const responseBody = JSON.parse(await response.text());
+  console.log(responseBody);
+  await page.screenshot({ path: 'resourses/bookPages.jpeg' });
+});
