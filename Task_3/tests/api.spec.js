@@ -17,13 +17,13 @@ test('API test', async ({ request }) => {
   await expect(page).toHaveURL(/profile/);
   
   const cookiesAll = await context.cookies();
-  const userID = cookiesAll.find((c) => c.name == 'userID');
+  const userID = cookiesAll.find((c) => c.name === 'userID');
   await expect(userID).toBeTruthy();
-  const userName = cookiesAll.find((c) => c.name == 'userName');
+  const userName = cookiesAll.find((c) => c.name === 'userName');
   await expect(userName).toBeTruthy();
-  const expires = cookiesAll.find((c) => c.name == 'expires');
+  const expires = cookiesAll.find((c) => c.name === 'expires');
   await expect(expires).toBeTruthy();
-  const token = cookiesAll.find((c) => c.name == 'token');
+  const token = cookiesAll.find((c) => c.name === 'token');
   await expect(token).toBeTruthy();
 
   await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
@@ -37,25 +37,32 @@ test('API test', async ({ request }) => {
   await expect(page.getByRole('button', { name: 'Next' })).toBeVisible();
   await page.screenshot({ path: 'resourses/pagescreen.jpeg', fullPage: true });
   const responseBooks = await responsePromise;
-  console.log(responseBooks.status());
+  await expect(responseBooks.status()).toBe(200);
   const responseBooksBody = await responseBooks.json();
-  await expect(responseBooksBody.books).toHaveLength(8);
+  const booksAmount = await page.locator('div.action-buttons').count();
+  const booksResponseAmount = await responseBooksBody.books.length;
+  await expect(booksAmount).toBe(booksResponseAmount);
 
+  const randomPages = Math.floor(Math.random() * 100) + 1;
   await page.route(`${baseURL}/BookStore/v1/Book?ISBN=*`, async (route) => {
     const response = await route.fetch();
     let body = await response.text();
     let bookBody = JSON.parse(body);
-    body = body.replace(bookBody.pages, '852');
+    body = body.replace(bookBody.pages, `${randomPages}`);
     route.fulfill({
       response,
       body,
       headers: { ...response.headers() },
     });
   });
-  await page.getByText('Speaking JavaScript').click();
+  const bookListIndex = Math.floor(Math.random()*booksResponseAmount);
+  const bookItemTitle = page.locator('div.action-buttons').nth(bookListIndex);
+  await bookItemTitle.click();
   await expect(
     page.getByRole('button', { name: 'Back To Book Store' })
   ).toBeVisible();
+  const numberPages = page.getByText(`${randomPages}`, {exact : true});
+  await expect(numberPages).toHaveText(`${randomPages}`);
   await page.screenshot({ path: 'resourses/bookPages.jpeg' });
 
   const response = await request.get(
@@ -66,8 +73,10 @@ test('API test', async ({ request }) => {
       },
     }
   );
-  expect(response.status()).toBe(200);
+  await expect(response.status()).toBe(200);
   const responseBody = JSON.parse(await response.text());
-  console.log(responseBody);
+  await expect(responseBody.username).toBe(userLogin);
+  await expect(responseBody.books.length).toBe(0);
+  await expect(responseBody.books).toStrictEqual([]);
   await page.screenshot({ path: 'resourses/bookPages.jpeg' });
 });
