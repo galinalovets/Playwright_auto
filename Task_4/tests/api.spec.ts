@@ -62,6 +62,7 @@ test('API test', async ({ request }) => {
     expect(responseBooks.status()).toBe(200);
     const responseBooksBody = await responseBooks.json();
     const booksAmount = await page.locator('div.action-buttons').count();
+    await expect(page.locator('div.action-buttons')).toHaveCount(booksAmount);
     const booksResponseAmount = await responseBooksBody.books.length;
     expect(booksAmount).toBe(booksResponseAmount);
   });
