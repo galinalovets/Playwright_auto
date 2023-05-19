@@ -61,7 +61,8 @@ test('API test', async ({ request }) => {
   await expect(
     page.getByRole('button', { name: 'Back To Book Store' })
   ).toBeVisible();
-  const numberPages = page.getByText(`${randomPages}`, {exact : true});
+
+  const numberPages = page.locator('label#userName-value.form-label').nth(6);
   await expect(numberPages).toHaveText(`${randomPages}`);
   await page.screenshot({ path: 'resourses/bookPages.jpeg' });
 
