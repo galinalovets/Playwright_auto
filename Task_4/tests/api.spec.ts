@@ -5,8 +5,8 @@ test('API test', async ({ request }) => {
   const baseURL = 'https://demoqa.com';
   const browser = await chromium.launch(/* недопонимаю, что я должна увидеть в консоли */{
     logger: {
-      isEnabled: (name, severity) => name === 'browser',
-      log: (name, severity, message, args) => console.log(`name => ${name} msg => ${message}`),
+      isEnabled: () => true,
+      log: (name, severity, message, args) => console.log(`name => ${name}, msg => ${message}`),
     },
   });
   
