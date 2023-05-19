@@ -1,4 +1,5 @@
-import { defineConfig, PlaywrightTestConfig, devices } from '@playwright/test';
+// @ts-check
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -9,16 +10,31 @@ import { defineConfig, PlaywrightTestConfig, devices } from '@playwright/test';
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-const config: PlaywrightTestConfig = {
+export default defineConfig({
+  // Look for test files in the "tests" directory, relative to this configuration file.
+  testDir: 'tests',
+
+  // Run all tests in parallel.
+  fullyParallel: true,
+
+  // Reporter to use
+  reporter: 'html',
+
+  // Retry
+  retries: 3,
+
   use: {
     headless: !true,
-    browserName: "chromium",
-    /*launchOptions: {
-      logger: {
-        isEnabled: (name, severity) => name === 'browser',
-        log: (name, severity, message, args) => console.log(`name => ${name} msg => ${message}`),
-      },
-    }*/
-  }
-}
-export default config;
+  },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      /*launchOptions: {
+        args: ['--start-maximized'],
+      },*/
+    },
+  ],
+});
+

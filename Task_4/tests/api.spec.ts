@@ -3,12 +3,12 @@ import { test, expect, chromium } from '@playwright/test';
 import userData from '../resourses/user.json';
 test('API test', async ({ request }) => {
   const baseURL = 'https://demoqa.com';
-  const browser = await chromium.launch(/* недопонимаю, что я должна увидеть в консоли {
+  const browser = await chromium.launch(/* недопонимаю, что я должна увидеть в консоли */{
     logger: {
       isEnabled: (name, severity) => name === 'browser',
       log: (name, severity, message, args) => console.log(`name => ${name} msg => ${message}`),
     },
-  }*/);
+  });
   
   const context = await browser.newContext();
   const page = await context.newPage();
