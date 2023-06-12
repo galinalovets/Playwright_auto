@@ -11,7 +11,7 @@ test('API test', async ({ request }) => {
   const userPassword = userData['password'];
   
   await test.step('Log in', async () => {
-    await page.goto(`${baseURL}/login`);
+    await page.goto(`${baseURL}/login`); // Login page
     await page.getByPlaceholder('UserName').fill(userLogin);
     await page.getByPlaceholder('Password').fill(userPassword);
     await page.getByRole('button', { name: 'Login' }).click();
@@ -34,7 +34,7 @@ test('API test', async ({ request }) => {
 
   await test.step('Block images', async () => {
     await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
-    await page.goto(`${baseURL}/books`);
+    await page.goto(`${baseURL}/books`); // Bookstore page
     await page.screenshot({ path: 'resourses/noimages.jpeg' });
   });
   
@@ -42,7 +42,7 @@ test('API test', async ({ request }) => {
     const responsePromise = page.waitForResponse(
       `${baseURL}/BookStore/v1/Books`
     );
-    await page.goto(`${baseURL}/profile`);
+    await page.goto(`${baseURL}/profile`); // Profile page ???
     await page
       .getByRole('list')
       .getByText('Book Store', { exact: true })

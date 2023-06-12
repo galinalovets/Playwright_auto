@@ -21,7 +21,7 @@ export default defineConfig({
   reporter: 'html',
 
   // Retry
-  retries: 3,
+  //retries: 3,
 
   use: {
     headless: !true,
