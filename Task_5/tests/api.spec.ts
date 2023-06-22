@@ -4,12 +4,12 @@ import userData from '../resourses/user.json';
 test('API test', async ({ request }) => {
   const baseURL = 'https://demoqa.com';
   const browser = await chromium.launch();
-  
+
   const context = await browser.newContext();
   const page = await context.newPage();
   const userLogin = userData['username'];
   const userPassword = userData['password'];
-  
+
   await test.step('Log in', async () => {
     await page.goto(`${baseURL}/login`); // Login page
     await page.getByPlaceholder('UserName').fill(userLogin);
@@ -37,7 +37,7 @@ test('API test', async ({ request }) => {
     await page.goto(`${baseURL}/books`); // Bookstore page
     await page.screenshot({ path: 'resourses/noimages.jpeg' });
   });
-  
+
   await test.step('Verify books amount', async () => {
     const responsePromise = page.waitForResponse(
       `${baseURL}/BookStore/v1/Books`
@@ -60,7 +60,7 @@ test('API test', async ({ request }) => {
       responseBooksBody.books.length
     );
   });
-  
+
   const randomPages = Math.floor(Math.random() * 100) + 1;
 
   await test.step('Modify response - random pages', async () => {
