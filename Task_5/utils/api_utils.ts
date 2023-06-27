@@ -1,19 +1,19 @@
-import { baseURL } from '../utils/basepage';
-import { generateRandomAmount } from './generalutils';
+import { baseURL } from '../pages/base_page';
+import { generateRandomAmount } from './general_utils';
 
 async function imgRouteAbort(page) {
   await page.route('**/*.{png,jpg,jpeg}', (route) => route.abort());
 }
 
-async function pageScreenshot(page) {
+async function pageScreenshot(page, imagePath) {
   await page.screenshot({
-    path: 'resourses/pagescreen.jpeg',
+    path: `${imagePath}`,
     fullPage: true,
   });
 }
 
 async function modifyResponseBookPages(page) {
-  const randomPages = await generateRandomAmount();
+  const randomPages = await generateRandomAmount(1, 1000);
   await page.route(`${baseURL}/BookStore/v1/Book?ISBN=*`, async (route) => {
     const response = await route.fetch();
     let body = await response.text();
@@ -26,11 +26,6 @@ async function modifyResponseBookPages(page) {
     });
   });
   return randomPages;
-}
-
-async function generateRandomBookListIndex(booksResponseAmount) {
-  const bookListIndex = Math.floor(Math.random() * booksResponseAmount);
-  return bookListIndex;
 }
 
 async function randomPageClick(page, bookListIndex) {
@@ -55,7 +50,6 @@ export {
   pageScreenshot,
   modifyResponseBookPages,
   generateRandomAmount,
-  generateRandomBookListIndex,
   randomPageClick,
   addUserAuthInfo,
 };

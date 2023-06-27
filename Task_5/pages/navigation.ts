@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test';
-import { baseURL } from '../utils/basepage';
+import { baseURL } from './base_page';
 
 export default class Navigation {
   readonly page: Page;

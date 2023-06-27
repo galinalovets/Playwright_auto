@@ -1,6 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
 import userData from '../resourses/user.json';
-import { baseURL } from '../utils/basepage';
+import { baseURL } from './base_page';
 
 export default class LoginPage {
   readonly page: Page;
